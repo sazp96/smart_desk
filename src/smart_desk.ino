@@ -77,10 +77,21 @@ int changeMode(String mode) {
   return 0;
 }
 
+int setStandTargetAndRestart(String target) {
+  int temp = target.toInt();
+  if ((temp > 0) && (temp < 60)) {
+    standTarget = temp;
+    timeLastChange = Time.now();
+  }
+  return 0;
+}
+
 void setup() {
   Particle.function("changeMode", changeMode);
+  Particle.function("setTarget", setStandTargetAndRestart);
   Particle.variable("isStanding", isStanding);
   Particle.variable("minInMode", minInMode);
+  Particle.variable("standTarget", standTarget);
   strip.begin();
   strip.show();
   changeMode("stand");
