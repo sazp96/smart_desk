@@ -18,6 +18,11 @@ STARTUP( pinIni() );
 #define ledCount 2
 #define ledType WS2812B
 bool isStanding = false; //during setup, desk initializes to stand
+int standTarget = 30; //minutes per hour
+int delayForAutoStand = 1; //minutes; Not doing auto sit due to risk of crushing something.
+int timeLastChange = 0; //seconds
+int minInMode = 0; //user friendly time in minutes
+bool notificationSent = false;
 
 Adafruit_NeoPixel strip(ledCount, ledPin, ledType);
 
@@ -60,6 +65,8 @@ int changeMode(String mode) {
   digitalWrite(pin, LOW);
   delay(movementTimmer);
 
+  notificationSent = false;
+  timeLastChange = Time.now();
   pinMode(pin, INPUT_PULLDOWN);
   strip.setPixelColor(0, 0, 0, 0);
   strip.setPixelColor(1, 0, 0, 0);
@@ -70,11 +77,37 @@ int changeMode(String mode) {
 void setup() {
   Particle.function("changeMode", changeMode);
   Particle.variable("isStanding", isStanding);
+  Particle.variable("minInMode", minInMode);
   strip.begin();
   strip.show();
   changeMode("stand");
 }
 
 void loop() {
+  minInMode = (Time.now() - timeLastChange) / 60;
 
+  if (isStanding) {
+    if (minInMode >= standTarget) { // If you have been standing longer than target
+      if (!notificationSent) { // Only tell me once
+        notificationSent = true;
+        warningSounds();
+        strip.setPixelColor(1, 10, 0, 0); //red
+        strip.setPixelColor(0, 10, 0, 0);
+        strip.begin();
+        strip.show();
+      }
+    }
+  } else
+    if (minInMode >= (60 - standTarget)) { // If you have been sitting longer than target
+      if (!notificationSent) { // Only tell me once
+        notificationSent = true;
+        warningSounds();
+        strip.setPixelColor(1, 0, 10, 0); //green
+        strip.setPixelColor(0, 0, 10, 0);
+        strip.begin();
+        strip.show();
+      } else if (minInMode >= (60 - standTarget + delayForAutoStand)) { // Auto stand 1 minute after notification set. Not doing auto sit due to risk of crushing something.
+        changeMode("stand");
+      }
+    }
 }
