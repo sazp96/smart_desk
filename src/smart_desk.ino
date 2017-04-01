@@ -1,6 +1,6 @@
 // --------------------------------------------
 //              Smart Desk V1.0
-//         Alexa controlled smart desk
+// Smart desk controlled by Alexa through IFTTT
 // Written but not maintained by: Sergio Zamora
 // --------------------------------------------
 
