@@ -23,6 +23,7 @@ int delayForAutoStand = 1; //minutes; Not doing auto sit due to risk of crushing
 int timeLastChange = 0; //seconds
 int minInMode = 0; //user friendly time in minutes
 bool notificationSent = false;
+bool areNotificationsOn = true;
 
 Adafruit_NeoPixel strip(ledCount, ledPin, ledType);
 
@@ -71,8 +72,8 @@ int changeMode(String mode) {
   notificationSent = false;
   timeLastChange = Time.now();
   pinMode(pin, INPUT_PULLDOWN);
-  strip.setPixelColor(0, 0, 0, 0);
   strip.setPixelColor(1, 0, 0, 0);
+  strip.setPixelColor(0, 0, 0, 0);
   strip.show();
   return 0;
 }
@@ -80,18 +81,31 @@ int changeMode(String mode) {
 int setStandTargetAndRestart(String target) {
   int temp = target.toInt();
   if ((temp > 0) && (temp < 60)) {
+    warningSounds(1);
+    areNotificationsOn = true;
     standTarget = temp;
     timeLastChange = Time.now();
   }
   return 0;
 }
 
+int turnNotificationsOff (String nothing) {
+  warningSounds(1);
+  areNotificationsOn = false;
+  strip.setPixelColor(1, 0, 0, 0);
+  strip.setPixelColor(0, 0, 0, 0);
+  strip.show();
+  return 0;
+}
+
 void setup() {
   Particle.function("changeMode", changeMode);
   Particle.function("setTarget", setStandTargetAndRestart);
+  Particle.function("turnNotiOff", turnNotificationsOff);
   Particle.variable("isStanding", isStanding);
   Particle.variable("minInMode", minInMode);
   Particle.variable("standTarget", standTarget);
+  Particle.variable("NotiStatus", areNotificationsOn);
   strip.begin();
   strip.show();
   changeMode("stand");
@@ -100,28 +114,31 @@ void setup() {
 void loop() {
   minInMode = (Time.now() - timeLastChange) / 60;
 
-  if (isStanding) {
-    if (minInMode >= standTarget) { // If you have been standing longer than target
-      if (!notificationSent) { // Only tell me once
-        notificationSent = true;
-        warningSounds(1);
-        strip.setPixelColor(1, 10, 0, 0); //red
-        strip.setPixelColor(0, 10, 0, 0);
-        strip.begin();
-        strip.show();
+  if (areNotificationsOn) {
+    if (isStanding) {
+      if (minInMode >= standTarget) { // If you have been standing longer than target
+        if (!notificationSent) { // Only tell me once
+          notificationSent = true;
+          warningSounds(1);
+          strip.setPixelColor(1, 10, 0, 0); //red
+          strip.setPixelColor(0, 10, 0, 0);
+          strip.begin();
+          strip.show();
+        }
+      }
+    } else {
+      if (minInMode >= (60 - standTarget)) { // If you have been sitting longer than target
+        if (!notificationSent) { // Only tell me once
+          notificationSent = true;
+          warningSounds(1);
+          strip.setPixelColor(1, 0, 10, 0); //green
+          strip.setPixelColor(0, 0, 10, 0);
+          strip.begin();
+          strip.show();
+        } else if (minInMode >= (60 - standTarget + delayForAutoStand)) { // Auto stand 1 minute after notification set. Not doing auto sit due to risk of crushing something.
+          changeMode("stand");
+        }
       }
     }
-  } else
-    if (minInMode >= (60 - standTarget)) { // If you have been sitting longer than target
-      if (!notificationSent) { // Only tell me once
-        notificationSent = true;
-        warningSounds(1);
-        strip.setPixelColor(1, 0, 10, 0); //green
-        strip.setPixelColor(0, 0, 10, 0);
-        strip.begin();
-        strip.show();
-      } else if (minInMode >= (60 - standTarget + delayForAutoStand)) { // Auto stand 1 minute after notification set. Not doing auto sit due to risk of crushing something.
-        changeMode("stand");
-      }
-    }
+  }
 }
