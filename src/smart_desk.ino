@@ -36,19 +36,22 @@ void pinIni() {
   digitalWrite(ledPin, LOW);
 }
 
-void warningSounds() {
+void warningSounds(int beeps) {
   analogWrite(buzzerPin, 5);
   delay(buzzerTimmer);
   analogWrite(buzzerPin, 0);
-  delay(buzzerTimmer / 2);
-  analogWrite(buzzerPin, 10);
-  delay(buzzerTimmer);
-  analogWrite(buzzerPin, 0);
+
+  if (beeps == 2) {
+    delay(buzzerTimmer / 2);
+    analogWrite(buzzerPin, 10);
+    delay(buzzerTimmer);
+    analogWrite(buzzerPin, 0);
+  }
 }
 
 int changeMode(String mode) {
   int pin = D0;
-  warningSounds();
+  warningSounds(2);
   if (mode.equals("sit") && isStanding) {
     isStanding = false;
     pin = sitPin;
@@ -90,7 +93,7 @@ void loop() {
     if (minInMode >= standTarget) { // If you have been standing longer than target
       if (!notificationSent) { // Only tell me once
         notificationSent = true;
-        warningSounds();
+        warningSounds(1);
         strip.setPixelColor(1, 10, 0, 0); //red
         strip.setPixelColor(0, 10, 0, 0);
         strip.begin();
@@ -101,7 +104,7 @@ void loop() {
     if (minInMode >= (60 - standTarget)) { // If you have been sitting longer than target
       if (!notificationSent) { // Only tell me once
         notificationSent = true;
-        warningSounds();
+        warningSounds(1);
         strip.setPixelColor(1, 0, 10, 0); //green
         strip.setPixelColor(0, 0, 10, 0);
         strip.begin();
