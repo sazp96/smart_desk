@@ -12,6 +12,7 @@ STARTUP( pinIni() );
 #define standPin D1
 #define sitPin D2
 #define buzzerPin A5
+#define buzzerTimmer 200  //milliseconds
 #define movementTimmer 12000  //milliseconds
 #define ledPin A4
 #define ledCount 2
@@ -31,8 +32,19 @@ void pinIni() {
   digitalWrite(ledPin, LOW);
 }
 
+void warningSounds() {
+  analogWrite(buzzerPin, 10);
+  delay(buzzerTimmer);
+  analogWrite(buzzerPin, 0);
+  delay(buzzerTimmer / 2);
+  analogWrite(buzzerPin, 10);
+  delay(buzzerTimmer);
+  analogWrite(buzzerPin, 0);
+}
+
 int changeMode(String mode) {
   int pin = D0;
+  warningSounds();
   if (mode.equals("sit")) {
     pin = sitPin;
     strip.setPixelColor(1, 10, 0, 0); //red
