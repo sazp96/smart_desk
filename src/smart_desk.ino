@@ -22,13 +22,11 @@ bool isStanding = false; //during setup, desk initializes to stand
 Adafruit_NeoPixel strip(ledCount, ledPin, ledType);
 
 void pinIni() {
-  pinMode(standPin, OUTPUT);
-  pinMode(sitPin, OUTPUT);
+  pinMode(standPin, INPUT_PULLDOWN);
+  pinMode(sitPin, INPUT_PULLDOWN);
   pinMode(buzzerPin, OUTPUT);
   pinMode(ledPin, OUTPUT);
 
-  digitalWrite(standPin, HIGH);
-  digitalWrite(sitPin, HIGH);
   digitalWrite(buzzerPin, LOW);
   digitalWrite(ledPin, LOW);
 }
@@ -58,10 +56,11 @@ int changeMode(String mode) {
     strip.setPixelColor(0, 0, 10, 0);
   }
   strip.show();
+  pinMode(pin, OUTPUT);
   digitalWrite(pin, LOW);
   delay(movementTimmer);
 
-  digitalWrite(pin, HIGH);
+  pinMode(pin, INPUT_PULLDOWN);
   strip.setPixelColor(0, 0, 0, 0);
   strip.setPixelColor(1, 0, 0, 0);
   strip.show();
