@@ -7,11 +7,17 @@
 SYSTEM_MODE(AUTOMATIC);
 STARTUP( pinIni() );
 
-int standPin = D1;
-int sitPin = D2;
-int buzzerPin = A5;
-int ledPin = A4;
+#include "neopixel.h"
+
+#define standPin D1
+#define sitPin D2
+#define buzzerPin A5
 #define movementTimmer 12000  //milliseconds
+#define ledPin A4
+#define ledCount 2
+#define ledType WS2812B
+
+Adafruit_NeoPixel strip(ledCount, ledPin, ledType);
 
 void pinIni() {
   pinMode(standPin, OUTPUT);
@@ -27,18 +33,29 @@ void pinIni() {
 
 int changeMode(String mode) {
   int pin = D0;
-  if (mode.equals("sit"))
+  if (mode.equals("sit")) {
     pin = sitPin;
-  else
+    strip.setPixelColor(1, 10, 0, 0); //red
+    strip.setPixelColor(0, 255, 0, 0);
+  } else {
     pin = standPin;
-
+    strip.setPixelColor(1, 0, 255, 0); //green
+    strip.setPixelColor(0, 0, 10, 0);
+  }
+  strip.show();
   digitalWrite(pin, LOW);
   delay(movementTimmer);
+
   digitalWrite(pin, HIGH);
+  strip.setPixelColor(0, 0, 0, 0);
+  strip.setPixelColor(1, 0, 0, 0);
+  strip.show();
   return 0;
 }
 
 void setup() {
+  strip.begin();
+  strip.show();
   Particle.function("changeMode", changeMode);
 }
 
