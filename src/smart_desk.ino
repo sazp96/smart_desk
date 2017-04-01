@@ -1,5 +1,5 @@
 // --------------------------------------------
-//              Smart Desk V1.0
+//             Smart Desk V1.0.1
 // Smart desk controlled by Alexa through IFTTT
 // Written but not maintained by: Sergio Zamora
 // --------------------------------------------
@@ -99,9 +99,9 @@ int turnNotificationsOff (String nothing) {
 }
 
 void setup() {
-  Particle.function("changeMode", changeMode);
-  Particle.function("setTarget", setStandTargetAndRestart);
-  Particle.function("turnNotiOff", turnNotificationsOff);
+  Particle.function("changeMode", changeMode); //Move the desk to sit or stand mode
+  Particle.function("setTarget", setStandTargetAndRestart); //Set the stand target and restarts the minutes in mode (stand/sit) to zero
+  Particle.function("turnNotiOff", turnNotificationsOff); //Turns notification system off
   Particle.variable("isStanding", isStanding);
   Particle.variable("minInMode", minInMode);
   Particle.variable("standTarget", standTarget);
