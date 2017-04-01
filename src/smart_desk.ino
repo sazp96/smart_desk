@@ -33,7 +33,7 @@ void pinIni() {
 }
 
 void warningSounds() {
-  analogWrite(buzzerPin, 10);
+  analogWrite(buzzerPin, 5);
   delay(buzzerTimmer);
   analogWrite(buzzerPin, 0);
   delay(buzzerTimmer / 2);
