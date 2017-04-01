@@ -17,6 +17,7 @@ STARTUP( pinIni() );
 #define ledPin A4
 #define ledCount 2
 #define ledType WS2812B
+bool isStanding = false; //during setup, desk initializes to stand
 
 Adafruit_NeoPixel strip(ledCount, ledPin, ledType);
 
@@ -45,11 +46,13 @@ void warningSounds() {
 int changeMode(String mode) {
   int pin = D0;
   warningSounds();
-  if (mode.equals("sit")) {
+  if (mode.equals("sit") && isStanding) {
+    isStanding = false;
     pin = sitPin;
     strip.setPixelColor(1, 10, 0, 0); //red
     strip.setPixelColor(0, 255, 0, 0);
-  } else {
+  } else if (mode.equals("stand") && !isStanding) {
+    isStanding = true;
     pin = standPin;
     strip.setPixelColor(1, 0, 255, 0); //green
     strip.setPixelColor(0, 0, 10, 0);
@@ -66,9 +69,11 @@ int changeMode(String mode) {
 }
 
 void setup() {
+  Particle.function("changeMode", changeMode);
+  Particle.variable("isStanding", isStanding);
   strip.begin();
   strip.show();
-  Particle.function("changeMode", changeMode);
+  changeMode("stand");
 }
 
 void loop() {
