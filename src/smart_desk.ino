@@ -1,8 +1,11 @@
 // --------------------------------------------
-//             Smart Desk V1.0.1
+//             Smart Desk V1.0.2
 // Smart desk controlled by Alexa through IFTTT
 // Written but not maintained by: Sergio Zamora
 // --------------------------------------------
+
+PRODUCT_ID(3893); // replace by your product ID
+PRODUCT_VERSION(2); // increment each time you upload to the console
 
 SYSTEM_MODE(AUTOMATIC);
 STARTUP( pinIni() );
