@@ -85,9 +85,12 @@ int setStandTargetAndRestart(String target) {
   int temp = target.toInt();
   if ((temp > 0) && (temp < 60)) {
     warningSounds(1);
-    areNotificationsOn = true;
     standTarget = temp;
     timeLastChange = Time.now();
+    areNotificationsOn = true;
+    strip.setPixelColor(1, 0, 0, 0);
+    strip.setPixelColor(0, 0, 0, 0);
+    strip.show();
   }
   return 0;
 }
