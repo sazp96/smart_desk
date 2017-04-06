@@ -34,4 +34,4 @@ Written but not maintained by: Sergio Zamora
 3)	Create an [IFTTT account](https://ifttt.com) and link your [Alexa](https://ifttt.com/amazon_alexa) and [Particle](https://ifttt.com/particle) accounts
 4)	Configure the IFTTT Applets listed below. Congratulations! You are all set!
 
-![smart-desk-ifttt-applets](/images/IFTTT_applets.jpg?raw=true)
+![smart-desk-ifttt-applets](/images/IFTTT_applets_low.jpg?raw=true)
