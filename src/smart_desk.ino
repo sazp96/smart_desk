@@ -5,7 +5,7 @@
 // --------------------------------------------
 
 PRODUCT_ID(3893); // replace by your product ID
-PRODUCT_VERSION(2); // increment each time you upload to the console
+PRODUCT_VERSION(3); // increment each time you upload to the console
 
 SYSTEM_MODE(AUTOMATIC);
 STARTUP( pinIni() );
@@ -72,9 +72,9 @@ int changeMode(String mode) {
   digitalWrite(pin, LOW);
   delay(movementTimmer);
 
-  notificationSent = false;
   timeLastChange = Time.now();
   pinMode(pin, INPUT_PULLDOWN);
+  notificationSent = false;
   strip.setPixelColor(1, 0, 0, 0);
   strip.setPixelColor(0, 0, 0, 0);
   strip.show();
@@ -88,6 +88,7 @@ int setStandTargetAndRestart(String target) {
     standTarget = temp;
     timeLastChange = Time.now();
     areNotificationsOn = true;
+    notificationSent = false;
     strip.setPixelColor(1, 0, 0, 0);
     strip.setPixelColor(0, 0, 0, 0);
     strip.show();
@@ -98,6 +99,7 @@ int setStandTargetAndRestart(String target) {
 int turnNotificationsOff (String nothing) {
   warningSounds(1);
   areNotificationsOn = false;
+  notificationSent = false;
   strip.setPixelColor(1, 0, 0, 0);
   strip.setPixelColor(0, 0, 0, 0);
   strip.show();
