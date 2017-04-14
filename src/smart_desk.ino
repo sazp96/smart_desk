@@ -1,5 +1,5 @@
 // --------------------------------------------
-//             Smart Desk V1.0.2
+//             Smart Desk V1.0.3
 // Smart desk controlled by Alexa through IFTTT
 // Written but not maintained by: Sergio Zamora
 // --------------------------------------------
@@ -16,7 +16,7 @@ STARTUP( pinIni() );
 #define sitPin D2
 #define buzzerPin A5
 #define buzzerTimmer 200  //milliseconds
-#define movementTimmer 12000  //milliseconds
+#define movementTimmer 13000  //milliseconds
 #define ledPin A4
 #define ledCount 2
 #define ledType WS2812B
@@ -55,7 +55,6 @@ void warningSounds(int beeps) {
 
 int changeMode(String mode) {
   int pin = D0;
-  warningSounds(2);
   if (mode.equals("sit") && isStanding) {
     isStanding = false;
     pin = sitPin;
@@ -68,16 +67,13 @@ int changeMode(String mode) {
     strip.setPixelColor(0, 0, 10, 0);
   }
   strip.show();
+  warningSounds(2);
   pinMode(pin, OUTPUT);
   digitalWrite(pin, LOW);
   delay(movementTimmer);
 
-  timeLastChange = Time.now();
   pinMode(pin, INPUT_PULLDOWN);
-  notificationSent = false;
-  strip.setPixelColor(1, 0, 0, 0);
-  strip.setPixelColor(0, 0, 0, 0);
-  strip.show();
+  initializeSystem();
   return 0;
 }
 
@@ -86,12 +82,8 @@ int setStandTargetAndRestart(String target) {
   if ((temp > 0) && (temp < 60)) {
     warningSounds(1);
     standTarget = temp;
-    timeLastChange = Time.now();
     areNotificationsOn = true;
-    notificationSent = false;
-    strip.setPixelColor(1, 0, 0, 0);
-    strip.setPixelColor(0, 0, 0, 0);
-    strip.show();
+    initializeSystem();
   }
   return 0;
 }
@@ -99,11 +91,16 @@ int setStandTargetAndRestart(String target) {
 int turnNotificationsOff (String nothing) {
   warningSounds(1);
   areNotificationsOn = false;
+  initializeSystem();
+  return 0;
+}
+
+void initializeSystem() {
+  timeLastChange = Time.now();
   notificationSent = false;
   strip.setPixelColor(1, 0, 0, 0);
   strip.setPixelColor(0, 0, 0, 0);
   strip.show();
-  return 0;
 }
 
 void setup() {
@@ -127,22 +124,20 @@ void loop() {
       if (minInMode >= standTarget) { // If you have been standing longer than target
         if (!notificationSent) { // Only tell me once
           notificationSent = true;
-          warningSounds(1);
           strip.setPixelColor(1, 10, 0, 0); //red
           strip.setPixelColor(0, 10, 0, 0);
-          strip.begin();
           strip.show();
+          warningSounds(1);
         }
       }
     } else {
       if (minInMode >= (60 - standTarget)) { // If you have been sitting longer than target
         if (!notificationSent) { // Only tell me once
           notificationSent = true;
-          warningSounds(1);
           strip.setPixelColor(1, 0, 10, 0); //green
           strip.setPixelColor(0, 0, 10, 0);
-          strip.begin();
           strip.show();
+          warningSounds(1);
         } else if (minInMode >= (60 - standTarget + delayForAutoStand)) { // Auto stand 1 minute after notification set. Not doing auto sit due to risk of crushing something.
           changeMode("stand");
         }
