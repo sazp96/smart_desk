@@ -6,6 +6,7 @@
 
 PRODUCT_ID(3893); // replace by your product ID
 PRODUCT_VERSION(3); // increment each time you upload to the console
+#define PRODUCT_VERSION_STRING "3"
 
 SYSTEM_MODE(AUTOMATIC);
 STARTUP( pinIni() );
@@ -16,10 +17,11 @@ STARTUP( pinIni() );
 #define sitPin D2
 #define buzzerPin A5
 #define buzzerTimmer 200  //milliseconds
-#define movementTimmer 13000  //milliseconds
+#define movementTimmerDefault 13000  //milliseconds
 #define ledPin A4
 #define ledCount 2
 #define ledType WS2812B
+int movementTimmer = movementTimmerDefault;
 bool isStanding = false; //during setup, desk initializes to stand
 int standTarget = 30; //minutes per hour
 int delayForAutoStand = 1; //minutes; Not doing auto sit due to risk of crushing something.
@@ -65,6 +67,12 @@ int changeMode(String mode) {
     pin = standPin;
     strip.setPixelColor(1, 0, 255, 0); //green
     strip.setPixelColor(0, 0, 10, 0);
+  } else if (mode.equals("slack") && isStanding) {
+    isStanding = false;
+    pin = sitPin;
+    strip.setPixelColor(1, 0, 0, 10); //blue
+    strip.setPixelColor(0, 0, 0, 255);
+    movementTimmer = 4000;
   }
   strip.show();
   warningSounds(2);
@@ -73,6 +81,7 @@ int changeMode(String mode) {
   delay(movementTimmer);
 
   pinMode(pin, INPUT_PULLDOWN);
+  Particle.publish("changeMode", mode);
   initializeSystem();
   return 0;
 }
@@ -96,6 +105,7 @@ int turnNotificationsOff (String nothing) {
 }
 
 void initializeSystem() {
+  movementTimmer = movementTimmerDefault;
   timeLastChange = Time.now();
   notificationSent = false;
   strip.setPixelColor(1, 0, 0, 0);
@@ -104,6 +114,7 @@ void initializeSystem() {
 }
 
 void setup() {
+  Particle.publish("Firmware Version", PRODUCT_VERSION_STRING);
   Particle.function("changeMode", changeMode); //Move the desk to sit or stand mode
   Particle.function("setTarget", setStandTargetAndRestart); //Set the stand target and restarts the minutes in mode (stand/sit) to zero
   Particle.function("turnNotiOff", turnNotificationsOff); //Turns notification system off
