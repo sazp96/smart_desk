@@ -22,7 +22,7 @@ STARTUP( pinIni() );
 #define ledCount 2
 #define ledType WS2812B
 #define motionPin D7
-#define errorMargin 1 // minutes
+#define errorMargin 5 // minutes
 
 int movementTimmer = movementTimmerDefault;
 bool isStanding = false; //during setup, desk initializes to stand
@@ -168,14 +168,14 @@ void loop() {
     }
 
     //Calculating performance vs target
-    if ((standingMinutes + sittingMinutes) >= 1) {
+    if ((standingMinutes + sittingMinutes) >= 5) {
       averageMinStanding = (standingMinutes * 60) / (standingMinutes + sittingMinutes);
       if ((averageMinStanding < (standTarget + errorMargin)) && (averageMinStanding > (standTarget - errorMargin)))
         statusMessage = "You are doing great! On average, you are standing " + String(averageMinStanding) + " minutes every hour. Keep up the good work!";
       else if (averageMinStanding > standTarget)
-        statusMessage = "You are standing too much! On average, you are standing " + String(averageMinStanding) + " minutes every hour. Try sitting a bit more.";
+        statusMessage = "You are standing too much! An average of " + String(averageMinStanding) + " minutes every hour. Your target is " + String(standTarget) + ". Try sitting a bit more.";
       else if (averageMinStanding < standTarget)
-        statusMessage = "You are sitting too much! On average, you are sitting " + String(60 - averageMinStanding) + " minutes every hour. Try standing a bit more.";
+        statusMessage = "You are sitting too much! An average of " + String(60 - averageMinStanding) + " minutes every hour. Your target is " + String(60 - standTarget) + ". Try standing a bit more.";
     } else {
       statusMessage = "You need to use your smart desk for at least 5 minutes before you can check your performance.";
     }
