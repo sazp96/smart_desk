@@ -28,7 +28,6 @@ int movementTimmer = movementTimmerDefault;
 bool isStanding = false; //during setup, desk initializes to stand
 int standTarget = 30; //minutes per hour
 int delayForAutoStand = 1; //minutes; Not doing auto sit due to risk of crushing something.
-int timeLastChange = 0; //seconds
 int minInMode = 0; //user friendly time in minutes
 bool notificationSent = false;
 bool areNotificationsOn = true;
@@ -116,7 +115,7 @@ int turnNotificationsOff (String nothing) {
 
 void initializeSystem() {
   movementTimmer = movementTimmerDefault;
-  timeLastChange = Time.now();
+  minInMode = 0;
   notificationSent = false;
   strip.setPixelColor(1, 0, 0, 0);
   strip.setPixelColor(0, 0, 0, 0);
@@ -156,6 +155,7 @@ void loop() {
         standingMinutes++;
       else
         sittingMinutes++;
+      minInMode++;
       motionDetected = false;
     } else {
       if ((standingMinutes != 0) || (sittingMinutes != 0)) //Only start counting idle time once we know the user is present
@@ -164,6 +164,7 @@ void loop() {
         standingMinutes = 0;
         sittingMinutes = 0;
         idleMinutes = 0;
+        minInMode = 0;
       }
     }
 
@@ -182,8 +183,6 @@ void loop() {
   }
 
   //Sending notifications to keep the user on track for their goal
-  minInMode = (Time.now() - timeLastChange) / 60;
-
   if (areNotificationsOn) {
     if (isStanding) {
       if (minInMode >= standTarget) { // If you have been standing longer than target
